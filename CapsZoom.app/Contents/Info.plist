@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleExecutable</key>
 	<string>CapsZoom</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.makoto.capszoom</string>
 	<key>CFBundleName</key>
@@ -12,9 +14,9 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
-	<key>NSHighResolutionCapable</key>
-	<true/>
 	<key>LSUIElement</key>
+	<true/>
+	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSScreenCaptureDescription</key>
 	<string>CapsZoom captures the screen to show a zoom overlay.</string>

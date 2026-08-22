@@ -52,10 +52,14 @@ final class CaptureEngine {
                 $0.owningApplication?.bundleIdentifier == "com.makoto.capszoom"
             }
             let filter = SCContentFilter(display: display, excludingWindows: own)
+            let scale = NSScreen.screens.first {
+                cgDisplayID(of: $0) == displayID
+            }?.backingScaleFactor ?? 2.0
             let c = SCStreamConfiguration()
-            c.width = display.width
-            c.height = display.height
+            c.width = Int((CGFloat(display.width) * scale).rounded())
+            c.height = Int((CGFloat(display.height) * scale).rounded())
             c.showsCursor = false
+            c.captureResolution = .best
             let img = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: c)
             debugLog("capture OK id=\(display.displayID) \(img.width)x\(img.height) exclude=\(own.count)")
             return img
