@@ -57,8 +57,15 @@ open CapsZoom.app
 
 ## 実装
 
-- キャプチャ: ScreenCaptureKit `SCScreenshotManager`。表示前に1枚撮る（黒パネル自身を撮らない）。カーソルがある画面を対象
+- キャプチャ: ScreenCaptureKit `SCScreenshotManager`。表示前に1枚撮る（黒パネル自身を撮らない）。カーソルがある画面を対象。Retina では `backingScaleFactor` を掛けたネイティブ解像度で取得（`captureResolution = .best`）。ポイント解像度のままだと拡大時に文字がぼやける
 - ズーム: CGContext を 2 倍。offset = カーソル位置 × (1 - 1/z) で、拡大前の点が同じ画面位置に残る
 - Caps Lock: CGEventTap + `maskAlphaShift`
 - AppKit のみ（NSPanel + status item）
 - bundle id: `com.makoto.capszoom`
+- アイコン: `AppIcon.icns`（青い虫眼鏡に「2x」）。Info.plist の `CFBundleIconFile=AppIcon`
+- DMG: Applications へのシンボリックリンクを同梱
+
+```sh
+mkdir -p dmg_stage && cp -R CapsZoom.app dmg_stage/ && ln -s /Applications dmg_stage/Applications
+hdiutil create -volname CapsZoom -srcfolder dmg_stage -ov -format UDZO CapsZoom.dmg && rm -rf dmg_stage
+```
