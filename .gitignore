@@ -1,0 +1,11 @@
+.DS_Store
+*.log
+debug.log
+stderr.log
+stream.log
+check.log
+CapsZoomApp
+launch_debug.sh
+capszoom_dev.key
+capszoom_dev.cer
+capszoom_dev.der
