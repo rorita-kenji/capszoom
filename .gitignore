@@ -9,3 +9,4 @@ launch_debug.sh
 capszoom_dev.key
 capszoom_dev.cer
 capszoom_dev.der
+*.dmg
