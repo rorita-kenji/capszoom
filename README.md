@@ -8,7 +8,7 @@ Caps Lock を押している間、画面を2倍ズームする macOS アプリ�
 1. [Releases](https://github.com/rorita-kenji/capszoom/releases) から `CapsZoom.dmg` をダウンロード
 2. DMG を開く
 3. `CapsZoom.app` を `Applications` フォルダへドラッグ
-4. `/Applications/CapsZoom.app` を起動（初回は右クリック → 開く）
+4. `/Applications/CapsZoom.app` を起動。初回は **右クリック → 開く**（Apple の有料開発者IDで署名していないため、「開発元を確認できない」と出る。右クリックで開ければ使える）
 5. 画面収録とアクセシビリティを許可して、アプリを再起動
 
 ログイン時に自動起動する場合: システム設定 → 一般 → ログイン項目 → `/Applications/CapsZoom.app` を追加。
