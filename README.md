@@ -1,7 +1,8 @@
 # CapsZoom
 
-Caps Lock を押している間、画面を2倍ズームする macOS アプリ。
-ズームの中心は押した瞬間のマウス位置。トラックパッドのスクロールでパンできる。
+Caps Lock 単独押しで画面を2倍ズーム／解除する macOS アプリ（OS の大文字ロックは動かさない）。
+ズーム中心はマウス位置に毎フレーム追従し、下の画面はライブで更新される（Windows 版 WinZoom と同じ動き）。
+Shift + Caps Lock は素通しするので、本当の Caps Lock はそちらで使える。
 
 ## インストール（ユーザー向け）
 
@@ -17,8 +18,8 @@ Caps Lock を押している間、画面を2倍ズームする macOS アプリ�
 
 1. `CapsZoom.app` を起動（`open CapsZoom.app`。ターミナルからバイナリ直実行はしない）
 2. メニューバーに 🔍 が出る
-3. **Caps Lock を押している間だけ** 2倍ズーム
-4. ズーム中にスクロールでパン
+3. **Caps Lock 単独押し** で 2倍ズーム ON / OFF（大文字入力にはならない）
+4. オーバーレイはクリック透過。カーソル自体は拡大されない
 5. 終了: 🔍 → Quit CapsZoom
 
 ### 権限（初回）
@@ -40,7 +41,8 @@ cd ~/ai/capszoom
 mkdir -p CapsZoom.app/Contents/MacOS
 swiftc -parse-as-library -O \
     -framework AppKit -framework ApplicationServices \
-    -framework CoreGraphics -framework ScreenCaptureKit \
+    -framework CoreGraphics -framework CoreImage -framework CoreMedia \
+    -framework CoreVideo -framework IOKit -framework ScreenCaptureKit \
     CapsZoomApp.swift -o CapsZoom.app/Contents/MacOS/CapsZoom
 codesign --force --deep -s CapsZoomDev CapsZoom.app
 # CapsZoomDev が無い場合のみ: codesign --force --deep -s - CapsZoom.app
@@ -57,9 +59,9 @@ open CapsZoom.app
 
 ## 実装
 
-- キャプチャ: ScreenCaptureKit `SCScreenshotManager`。表示前に1枚撮る（黒パネル自身を撮らない）。カーソルがある画面を対象。Retina では `backingScaleFactor` を掛けたネイティブ解像度で取得（`captureResolution = .best`）。ポイント解像度のままだと拡大時に文字がぼやける
-- ズーム: CGContext を 2 倍。offset = カーソル位置 × (1 - 1/z) で、拡大前の点が同じ画面位置に残る
-- Caps Lock: CGEventTap + `maskAlphaShift`
+- キャプチャ: ScreenCaptureKit `SCStream` で最大60fps。自窓を除外してフィードバックを防ぐ。カーソルがある画面を対象。Retina では `backingScaleFactor` を掛けたネイティブ解像度（`captureResolution = .best`）
+- ズーム: CGContext を 2 倍。毎フレーム offset = カーソル位置 × (1 - 1/z)。パネルは `ignoresMouseEvents` でクリック透過
+- Caps Lock: キーコード 57 を横取りしてトグル。イベント破棄だけでは HID のロックが残るので `IOHIDSetModifierLockState` でオフ。Shift/Ctrl/Option/Cmd 併用は素通し
 - AppKit のみ（NSPanel + status item）
 - bundle id: `com.makoto.capszoom`
 - アイコン: `AppIcon.icns`（青い虫眼鏡に「2x」）。Info.plist の `CFBundleIconFile=AppIcon`
