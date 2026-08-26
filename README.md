@@ -20,7 +20,8 @@ Shift + Caps Lock は素通しするので、本当の Caps Lock はそちらで
 2. メニューバーに 🔍 が出る
 3. **Caps Lock 単独押し** で 2倍ズーム ON / OFF（大文字入力にはならない）
 4. オーバーレイはクリック透過。カーソル自体は拡大されない
-5. 終了: 🔍 → Quit CapsZoom
+5. 🔍 → **ログイン時に起動** で自動起動の ON / OFF
+6. 終了: 🔍 → Quit CapsZoom
 
 ### 権限（初回）
 
@@ -42,7 +43,8 @@ mkdir -p CapsZoom.app/Contents/MacOS
 swiftc -parse-as-library -O \
     -framework AppKit -framework ApplicationServices \
     -framework CoreGraphics -framework CoreImage -framework CoreMedia \
-    -framework CoreVideo -framework IOKit -framework ScreenCaptureKit \
+    -framework CoreVideo -framework IOKit -framework ServiceManagement \
+    -framework ScreenCaptureKit \
     CapsZoomApp.swift -o CapsZoom.app/Contents/MacOS/CapsZoom
 codesign --force --deep -s CapsZoomDev CapsZoom.app
 # CapsZoomDev が無い場合のみ: codesign --force --deep -s - CapsZoom.app

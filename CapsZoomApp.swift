@@ -6,6 +6,7 @@ import CoreMedia
 import CoreVideo
 import Darwin
 import IOKit
+import ServiceManagement
 import ScreenCaptureKit
 
 // CapsZoom: Caps Lock toggles live 2x zoom that follows the cursor (WinZoom-style).
@@ -175,13 +176,14 @@ final class ScreenZoomView: NSView {
 }
 
 @main
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     static var shared: AppDelegate!
     let state = ZoomState()
     var tap: CFMachPort?
     var panel: NSPanel?
     var zoomView: ScreenZoomView?
     var statusItem: NSStatusItem?
+    var loginMenuItem: NSMenuItem?
     var followTimer: Timer?
     var lastDisplayID: CGDirectDisplayID = 0
 
@@ -234,9 +236,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         item.button?.title = "🔍"
         let menu = NSMenu()
+        menu.delegate = self
+        let login = NSMenuItem(title: "ログイン時に起動", action: #selector(toggleLoginItem(_:)), keyEquivalent: "")
+        login.target = self
+        menu.addItem(login)
+        menu.addItem(.separator())
         menu.addItem(withTitle: "Quit CapsZoom", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         item.menu = menu
         self.statusItem = item
+        self.loginMenuItem = login
+        refreshLoginItemState()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -340,5 +349,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             debugLog("follow screen=\(Int(frame.width))x\(Int(frame.height)) did=\(did)")
             CaptureEngine.shared.start(displayID: did)
         }
+    }
+
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        refreshLoginItemState()
+    }
+
+    func refreshLoginItemState() {
+        let on = SMAppService.mainApp.status == .enabled
+        loginMenuItem?.state = on ? .on : .off
+    }
+
+    @objc func toggleLoginItem(_ sender: Any?) {
+        do {
+            if SMAppService.mainApp.status == .enabled {
+                try SMAppService.mainApp.unregister()
+                debugLog("login item off")
+            } else {
+                try SMAppService.mainApp.register()
+                debugLog("login item on")
+            }
+        } catch {
+            debugLog("login item error \(error)")
+        }
+        refreshLoginItemState()
     }
 }
